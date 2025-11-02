@@ -20,6 +20,7 @@ import ManajemenKegiatan from './pages/ManajemenKegiatan.jsx';
 import BuatKegiatan from './pages/BuatKegiatan.jsx';
 import EditKegiatan from './pages/EditKegiatan.jsx';
 import ManajemenPengguna from './pages/ManajemenPengguna.jsx';
+import Pengaturan from './pages/Pengaturan.jsx';
 
 
 // Impor Komponen (Guards)
@@ -80,6 +81,10 @@ const router = createBrowserRouter([
           { 
             path: "/admin/manajemen-pengguna", 
             element: <ManajemenPengguna /> 
+          },
+          { 
+            path: "/admin/pengaturan", 
+            element: <Pengaturan /> 
           },
         ]
       }
