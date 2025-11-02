@@ -19,6 +19,8 @@ import AdminDashboard from './pages/AdminDashboard.jsx';
 import ManajemenKegiatan from './pages/ManajemenKegiatan.jsx';
 import BuatKegiatan from './pages/BuatKegiatan.jsx';
 import EditKegiatan from './pages/EditKegiatan.jsx';
+import ManajemenPengguna from './pages/ManajemenPengguna.jsx';
+
 
 // Impor Komponen (Guards)
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -68,12 +70,16 @@ const router = createBrowserRouter([
           { path: "/admin/dashboard", element: <AdminDashboard /> },
           { path: "/admin/manajemen-kegiatan", element: <ManajemenKegiatan /> },
           { 
-            path: "/admin/kegiatan/baru", // <-- 2. TAMBAHKAN INI
+            path: "/admin/kegiatan/baru", 
             element: <BuatKegiatan /> 
           },
           { 
-            path: "/admin/kegiatan/edit/:id", // <-- 2. TAMBAHKAN INI
+            path: "/admin/kegiatan/edit/:id", 
             element: <EditKegiatan /> 
+          },
+          { 
+            path: "/admin/manajemen-pengguna", 
+            element: <ManajemenPengguna /> 
           },
         ]
       }
