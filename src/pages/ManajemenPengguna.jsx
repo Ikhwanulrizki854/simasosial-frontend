@@ -42,6 +42,43 @@ function ManajemenPengguna() {
     fetchUsers();
   }, [navigate]);
 
+  // 1. FUNGSI BARU UNTUK UBAH ROLE
+  const handleRoleChange = async (user) => {
+    const newRole = user.role === 'admin' ? 'mahasiswa' : 'admin';
+    
+    if (!window.confirm(`Apakah Anda yakin ingin mengubah role "${user.nama_lengkap}" menjadi "${newRole}"?`)) {
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`http://localhost:8000/api/admin/users/${user.id}/role`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ newRole })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Gagal mengupdate role.');
+      }
+
+      // Jika sukses, update data di frontend (state)
+      setUsers(prevUsers => 
+        prevUsers.map(u => 
+          u.id === user.id ? { ...u, role: newRole } : u
+        )
+      );
+
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   if (loading) return <div className="text-center p-5">Loading data pengguna...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
 
@@ -89,7 +126,11 @@ function ManajemenPengguna() {
                       </span>
                     </td>
                     <td>
-                      <button className="btn btn-sm btn-outline-secondary me-2" title="Edit Role">
+                      <button 
+                        className="btn btn-sm btn-outline-secondary me-2" 
+                        title="Ubah Role"
+                        onClick={() => handleRoleChange(user)}
+                      >
                         <i className="bi bi-pencil-fill"></i>
                       </button>
                     </td>
