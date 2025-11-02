@@ -63,6 +63,36 @@ function ManajemenKegiatan() {
   if (loading) return <div className="text-center p-5">Loading data kegiatan...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
 
+  const handleDelete = async (id, judul) => {
+    // Tampilkan konfirmasi
+    if (!window.confirm(`Apakah Anda yakin ingin menghapus kegiatan "${judul}"? Tindakan ini tidak bisa dibatalkan.`)) {
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`http://localhost:8000/api/admin/activities/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Gagal menghapus kegiatan.');
+      }
+
+      // Jika sukses, hapus item dari state (tabel) secara lokal
+      setActivities(prevActivities => prevActivities.filter(act => act.id !== id));
+
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  if (loading) return <div className="text-center p-5">Loading data kegiatan...</div>;
+  if (error) return <div className="alert alert-danger">{error}</div>;
+
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -121,7 +151,11 @@ function ManajemenKegiatan() {
                         <i className="bi bi-pencil-fill"></i>
                       </Link>
                       
-                      <button className="btn btn-sm btn-outline-danger" title="Hapus">
+                      <button 
+                        className="btn btn-sm btn-outline-danger" 
+                        title="Hapus"
+                        onClick={() => handleDelete(act.id, act.judul)}
+                      >
                         <i className="bi bi-trash-fill"></i>
                       </button>
                     </td>
