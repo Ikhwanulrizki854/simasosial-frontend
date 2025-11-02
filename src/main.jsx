@@ -13,6 +13,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import LandingPage from './pages/LandingPage.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
+import VerifikasiSertifikat from './pages/VerifikasiSertifikat.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import ActivityDetail from './pages/ActivityDetail.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
@@ -21,6 +22,7 @@ import BuatKegiatan from './pages/BuatKegiatan.jsx';
 import EditKegiatan from './pages/EditKegiatan.jsx';
 import ManajemenPengguna from './pages/ManajemenPengguna.jsx';
 import Pengaturan from './pages/Pengaturan.jsx';
+
 
 
 // Impor Komponen (Guards)
@@ -42,6 +44,10 @@ const router = createBrowserRouter([
   {
     path: "/register", 
     element: <Register />,
+  },
+  {
+    path: "/verifikasi", 
+    element: <VerifikasiSertifikat />,
   },
   
   // Rute untuk MAHASISWA (Perlu login)
