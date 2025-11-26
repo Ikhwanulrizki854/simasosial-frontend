@@ -5,11 +5,17 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  
+  // STATE (SHOW/HIDE PASSWORD)
+  const [showPassword, setShowPassword] = useState(false);
+  
   const navigate = useNavigate();
 
   const handleLogin = async (event) => {
     event.preventDefault(); 
     setError(''); 
+    setLoading(true);
 
     try {
       const response = await fetch('http://localhost:8000/api/login', {
@@ -33,18 +39,20 @@ function Login() {
         if (data.role === 'admin') {
           navigate('/admin/dashboard'); 
         } else {
-          navigate('/dashboard'); 
+          navigate('/');
         }
       }
 
     } catch (err) {
       console.error('Fetch error:', err);
       setError('Tidak dapat terhubung ke server.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <main className="container-fluid d-flex vh-100 justify-content-center align-items-center">
+    <main className="container-fluid d-flex vh-100 justify-content-center align-items-center bg-light">
       <div className="col-12 col-md-5 col-lg-4">
         <div className="card shadow-sm border-0" style={{ borderRadius: '1rem' }}>
           <div className="card-body p-4 p-lg-5">
@@ -68,25 +76,40 @@ function Login() {
                 />
               </div>
 
+              {/* FORM PASSWORD DENGAN ICON MATA */}
               <div className="mb-3">
                 <label htmlFor="password" className="form-label">Password</label>
-                <input 
-                  type="password" 
-                  className="form-control form-control-lg" 
-                  id="password" 
-                  placeholder="Masukkan password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <div className="input-group">
+                  <input 
+                    // Ubah tipe berdasarkan state showPassword
+                    type={showPassword ? "text" : "password"} 
+                    className="form-control form-control-lg border-end-0" 
+                    id="password" 
+                    placeholder="Masukkan password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button 
+                    className="btn btn-light border border-start-0" 
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ zIndex: 0 }}
+                  >
+                    {/* Ganti ikon mata berdasarkan state */}
+                    <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                  </button>
+                </div>
               </div>
               
               <div className="text-end mb-3">
-                <Link to="#" className="text-decoration-none">Lupa Password?</Link>
+                <Link to="/lupa-password" class="text-decoration-none">Lupa Password?</Link>
               </div>
 
               <div className="d-grid mb-3">
-                <button type="submit" className="btn btn-warning btn-lg fw-bold text-white">Masuk</button>
+                <button type="submit" className="btn btn-warning btn-lg fw-bold text-white" disabled={loading}>
+                  {loading ? 'Memproses...' : 'Masuk'}
+                </button>
               </div>
 
               <p className="text-center text-muted">

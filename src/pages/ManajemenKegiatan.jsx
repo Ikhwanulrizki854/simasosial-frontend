@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
-// Fungsi helper untuk format tanggal
+// Fungsi helper (tanggal & rupiah)
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A';
   const options = { year: 'numeric', month: 'short', day: 'numeric' };
   return new Date(dateString).toLocaleDateString('id-ID', options);
 };
 
-// Fungsi helper untuk format Rupiah
 const formatCurrency = (number) => {
   if (number === 0 || !number) return '-';
   return new Intl.NumberFormat('id-ID', { 
@@ -20,23 +20,30 @@ const formatCurrency = (number) => {
 
 function ManajemenKegiatan() {
   const [activities, setActivities] = useState([]);
+  const [filteredActivities, setFilteredActivities] = useState([]);
+  
+  // State Search & Filter
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterTipe, setFilterTipe] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+
+  // State Pagination 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5); 
+
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [exporting, setExporting] = useState(false); 
   const navigate = useNavigate();
 
+  // Fetch Data
   useEffect(() => {
     const fetchActivities = async () => {
       const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/login'); // Tendang jika tidak ada token
-        return;
-      }
+      if (!token) { navigate('/login'); return; }
 
       try {
         const response = await fetch('http://localhost:8000/api/admin/activities', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (!response.ok) {
@@ -50,9 +57,13 @@ function ManajemenKegiatan() {
 
         const data = await response.json();
         setActivities(data);
-        setLoading(false);
+        setFilteredActivities(data); 
       } catch (err) {
-        setError(err.message);
+        const Toast = Swal.mixin({
+          toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true
+        });
+        Toast.fire({ icon: 'error', title: err.message });
+      } finally {
         setLoading(false);
       }
     };
@@ -60,47 +71,142 @@ function ManajemenKegiatan() {
     fetchActivities();
   }, [navigate]);
 
-  if (loading) return <div className="text-center p-5">Loading data kegiatan...</div>;
-  if (error) return <div className="alert alert-danger">{error}</div>;
+  // Logika Filter & Reset Pagination
+  useEffect(() => {
+    const results = activities.filter(act => {
+      const matchSearch = act.judul.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchTipe = filterTipe ? act.tipe === filterTipe : true;
+      const matchStatus = filterStatus ? act.status === filterStatus : true;
 
+      return matchSearch && matchTipe && matchStatus;
+    });
+    setFilteredActivities(results);
+    setCurrentPage(1); 
+  }, [searchTerm, filterTipe, filterStatus, activities]);
+
+  // Logika Pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredActivities.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredActivities.length / itemsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Fungsi Delete
   const handleDelete = async (id, judul) => {
-    // Tampilkan konfirmasi
-    if (!window.confirm(`Apakah Anda yakin ingin menghapus kegiatan "${judul}"? Tindakan ini tidak bisa dibatalkan.`)) {
-      return;
-    }
+    const result = await Swal.fire({
+      title: 'Hapus Kegiatan?',
+      text: `Anda yakin ingin menghapus "${judul}"? Data peserta & donasi terkait akan hilang!`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Ya, Hapus!'
+    });
+
+    if (!result.isConfirmed) return; 
 
     const token = localStorage.getItem('token');
     try {
       const response = await fetch(`http://localhost:8000/api/admin/activities/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
 
-      if (!response.ok) {
-        throw new Error('Gagal menghapus kegiatan.');
-      }
+      if (!response.ok) throw new Error('Gagal menghapus kegiatan.');
 
-      // Jika sukses, hapus item dari state (tabel) secara lokal
-      setActivities(prevActivities => prevActivities.filter(act => act.id !== id));
+      setActivities(prev => prev.filter(act => act.id !== id));
+      Swal.fire('Terhapus!', 'Kegiatan telah dihapus.', 'success');
 
     } catch (err) {
-      setError(err.message);
+      Swal.fire('Gagal!', err.message, 'error');
+    }
+  };
+
+  // Fungsi Export (SEKARANG KE EXCEL)
+  const handleExport = async () => {
+    setExporting(true);
+    const token = localStorage.getItem('token');
+    try {
+      // Panggil endpoint Export Excel
+      const response = await fetch('http://localhost:8000/api/admin/activities/export-excel', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!response.ok) throw new Error('Gagal export data');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      // Ubah ekstensi menjadi .xlsx
+      link.setAttribute('download', 'Laporan_Kegiatan.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      
+      const Toast = Swal.mixin({
+        toast: true, position: 'top-end', showConfirmButton: false, timer: 3000
+      });
+      Toast.fire({ icon: 'success', title: 'Excel berhasil diunduh' });
+
+    } catch (err) {
+      Swal.fire('Gagal Export', err.message, 'error');
+    } finally {
+      setExporting(false);
     }
   };
 
   if (loading) return <div className="text-center p-5">Loading data kegiatan...</div>;
-  if (error) return <div className="alert alert-danger">{error}</div>;
 
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="fw-bold">Manajemen Kegiatan</h1>
-        <Link to="/admin/kegiatan/baru" className="btn btn-primary btn-lg">
-          <i className="bi bi-plus-circle-fill me-2"></i>
-          Tambah Kegiatan Baru
-        </Link>
+        <div>
+          {/* Tombol Export berubah jadi Excel */}
+          <button className="btn btn-success me-2" onClick={handleExport} disabled={exporting}>
+            {exporting ? '...' : <><i className="bi bi-file-earmark-excel me-2"></i> Export Excel</>}
+          </button>
+          
+          <Link to="/admin/kegiatan/baru" className="btn btn-primary">
+            <i className="bi bi-plus-circle-fill me-2"></i> Tambah Kegiatan Baru
+          </Link>
+        </div>
+      </div>
+
+      <div className="card shadow-sm border-0 mb-4">
+        <div className="card-body bg-light rounded">
+          <div className="row g-2">
+            <div className="col-md-6">
+              <div className="input-group">
+                <span className="input-group-text bg-white border-end-0"><i className="bi bi-search text-muted"></i></span>
+                <input 
+                  type="text" 
+                  className="form-control border-start-0" 
+                  placeholder="Cari berdasarkan Nama Kegiatan..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="col-md-3">
+              <select className="form-select" value={filterTipe} onChange={(e) => setFilterTipe(e.target.value)}>
+                <option value="">Semua Jenis</option>
+                <option value="donasi">Donasi</option>
+                <option value="volunteer">Volunteer</option>
+              </select>
+            </div>
+            <div className="col-md-3">
+              <select className="form-select" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+                <option value="">Semua Status</option>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+                <option value="selesai">Selesai</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="card shadow-sm border-0">
@@ -108,21 +214,19 @@ function ManajemenKegiatan() {
           <table className="table table-hover align-middle">
             <thead className="table-light">
               <tr>
-                <th scope="col">Judul Kegiatan</th>
-                <th scope="col">Jenis</th>
-                <th scope="col">Detail (Target)</th>
-                <th scope="col">Status</th>
-                <th scope="col">Tanggal</th>
-                <th scope="col">Aksi</th>
+                <th>Judul Kegiatan</th>
+                <th>Jenis</th>
+                <th>Detail (Target)</th>
+                <th>Status</th>
+                <th>Tanggal</th>
+                <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
-              {activities.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="text-center text-muted">Belum ada data kegiatan.</td>
-                </tr>
+              {currentItems.length === 0 ? (
+                <tr><td colSpan="6" className="text-center text-muted py-4">Tidak ada kegiatan yang cocok.</td></tr>
               ) : (
-                activities.map(act => (
+                currentItems.map(act => (
                   <tr key={act.id}>
                     <td className="fw-bold">{act.judul}</td>
                     <td>
@@ -133,7 +237,7 @@ function ManajemenKegiatan() {
                     <td>
                       {act.tipe === 'donasi' 
                         ? formatCurrency(act.target_donasi)
-                        : `${act.peserta_terdaftar}/${act.target_peserta} Peserta`
+                        : `${act.peserta_terdaftar}/${act.target_peserta || '∞'} Peserta`
                       }
                     </td>
                     <td>
@@ -143,19 +247,10 @@ function ManajemenKegiatan() {
                     </td>
                     <td>{formatDate(act.tanggal_mulai)}</td>
                     <td>
-                      <Link 
-                        to={`/admin/kegiatan/edit/${act.id}`} 
-                        className="btn btn-sm btn-outline-secondary me-2" 
-                        title="Edit"
-                      >
+                      <Link to={`/admin/kegiatan/edit/${act.id}`} className="btn btn-sm btn-outline-secondary me-2" title="Edit">
                         <i className="bi bi-pencil-fill"></i>
                       </Link>
-                      
-                      <button 
-                        className="btn btn-sm btn-outline-danger" 
-                        title="Hapus"
-                        onClick={() => handleDelete(act.id, act.judul)}
-                      >
+                      <button className="btn btn-sm btn-outline-danger" title="Hapus" onClick={() => handleDelete(act.id, act.judul)}>
                         <i className="bi bi-trash-fill"></i>
                       </button>
                     </td>
@@ -164,6 +259,33 @@ function ManajemenKegiatan() {
               )}
             </tbody>
           </table>
+          
+          {/* PAGINATION FOOTER */}
+          <div className="d-flex justify-content-between align-items-center mt-4">
+            <div className="text-muted small">
+              Menampilkan {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, filteredActivities.length)} dari {filteredActivities.length} kegiatan
+            </div>
+            <nav>
+              <ul className="pagination pagination-sm mb-0">
+                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={() => paginate(currentPage - 1)}>Previous</button>
+                </li>
+
+                {[...Array(totalPages)].map((_, i) => (
+                  <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                    <button className="page-link" onClick={() => paginate(i + 1)}>
+                      {i + 1}
+                    </button>
+                  </li>
+                ))}
+
+                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={() => paginate(currentPage + 1)}>Next</button>
+                </li>
+              </ul>
+            </nav>
+          </div>
+
         </div>
       </div>
     </div>

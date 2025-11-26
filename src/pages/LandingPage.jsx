@@ -1,36 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+
+// Helper untuk format Rupiah
+const formatCurrency = (number) => {
+  if (!number) return 'Rp 0';
+  return new Intl.NumberFormat('id-ID', { 
+    style: 'currency', 
+    currency: 'IDR', 
+    minimumFractionDigits: 0 
+  }).format(number);
+};
+
+// Helper untuk hitung persentase progress
+const getPercentage = (current, target) => {
+  if (!target || target === 0) return 0;
+  return Math.min(100, (current / target) * 100);
+};
+
 
 function LandingPage() {
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Ambil data kegiatan publik (Top 6)
+    const fetchActivities = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('http://localhost:8000/api/public-activities');
+        if (!response.ok) throw new Error('Gagal memuat kegiatan');
+        const data = await response.json();
+        setActivities(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchActivities();
+  }, []);
+
   return (
     <div>
-      {/* Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
-        <div className="container">
-          <a className="navbar-brand fw-bold" href="#">
-            SIMASOSIAL FST
-          </a>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav ms-auto align-items-center">
-              <li className="nav-item">
-                <a className="nav-link active" href="#">Beranda</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#">Kegiatan</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#">Verifikasi Sertifikat</a>
-              </li>
-              <li className="nav-item ms-3">
-                <Link to="/login" className="btn btn-warning text-white btn-sm px-3">Login/Daftar</Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
+      {/* Navbar Dinamis */}
+      <Navbar />
 
       {/* Header */}
       <header className="py-5" style={{ 
@@ -51,77 +66,133 @@ function LandingPage() {
           >
             Platform kegiatan sosial mahasiswa Fakultas Sains dan Teknologi
           </p>
-          <a href="#kegiatan" className="btn btn-warning text-white btn-lg fw-bold">Lihat Semua Kegiatan</a>
+          
+          <Link to="/kegiatan-publik" className="btn btn-warning text-white btn-lg fw-bold mt-3">
+            Lihat Semua Kegiatan
+          </Link>
+
         </div>
       </header>
 
-      {/* Kegiatan Mendesak */}
-      <section id="kegiatan" className="py-5 bg-light">
+      {/* Bagian Kegiatan Mendesak */}
+      <section id="kegiatan" className="py-5 bg-white">
         <div className="container">
-          <h2 className="text-center fw-bold mb-4">Kegiatan Mendesak Saat Ini</h2>
+          <h2 className="text-center fw-bold mb-4" style={{ color: '#0d47a1' }}>Kegiatan Mendesak Saat Ini</h2>
+          
           <div className="row">
-            {/* Card 1: Donasi (Contoh) */}
-            <div className="col-lg-4 col-md-6 mb-4">
-              <div className="card shadow-sm border-0">
-                <img src="https://i0.wp.com/bpbd.babelprov.go.id/wp-content/uploads/2018/06/banjir.jpg?fit=1024%2C768&ssl=1" className="card-img-top" alt="Donasi Banjir" />
-                <div className="card-body">
-                  <span className="badge bg-warning text-dark mb-2">Donasi</span>
-                  <h5 className="card-title fw-bold">Donasi untuk Korban Banjir Padang</h5>
-                  <p className="card-text text-muted">Terkumpul Rp 750.000</p>
-                  <div className="progress mb-3" style={{ height: '5px' }}>
-                    <div className="progress-bar bg-warning" role="progressbar" style={{ width: '75%' }}></div>
-                  </div>
-                  <Link to="#" className="btn btn-primary w-100">Donasi Sekarang</Link>
-                </div>
+            {loading ? (
+              <div className="text-center w-100 py-5">
+                <div className="spinner-border text-primary" role="status"></div>
+                <p className="mt-2 text-muted">Memuat kegiatan...</p>
               </div>
-            </div>
-            {/* Card 2: Volunteer (Contoh) */}
-            <div className="col-lg-4 col-md-6 mb-4">
-              <div className="card shadow-sm border-0">
-                <img src="https://assets-a1.kompasiana.com/items/album/2023/05/05/messageimage-1683300321014-6455200c08a8b5309923eb42.jpg" className="card-img-top" alt="Relawan Mengajar" />
-                <div className="card-body">
-                  <span className="badge bg-info text-dark mb-2">Volunteer</span>
-                  <h5 className="card-title fw-bold">Relawan Mengajar di Panti Asuhan</h5>
-                  <p className="card-text text-muted">15/25 Peserta</p>
-                  <div className="progress mb-3" style={{ height: '5px' }}>
-                    <div className="progress-bar bg-info" role="progressbar" style={{ width: '60%' }}></div>
+            ) : activities.length === 0 ? (
+              <p className="text-center text-muted w-100 py-5">Belum ada kegiatan yang dipublikasikan.</p>
+            ) : (
+              activities.map(act => (
+                <div key={act.id} className="col-lg-4 col-md-6 mb-4">
+                  <div className="card shadow-sm border-0 h-100 hover-card">
+                    <div className="position-relative">
+                      <img 
+                        src={act.gambar_url ? `http://localhost:8000/${act.gambar_url}` : 'https://via.placeholder.com/400x200?text=Kegiatan'} 
+                        className="card-img-top" 
+                        alt={act.judul} 
+                        style={{ height: '200px', objectFit: 'cover' }}
+                      />
+                      <span className={`position-absolute top-0 end-0 badge m-3 ${act.tipe === 'donasi' ? 'bg-warning text-dark' : 'bg-info text-white'}`}>
+                        {act.tipe.toUpperCase()}
+                      </span>
+                    </div>
+                    
+                    <div className="card-body d-flex flex-column">
+                      <h5 className="card-title fw-bold mb-1">{act.judul}</h5>
+                      <p className="text-muted small mb-3">
+                        <i className="bi bi-geo-alt me-1"></i> {act.lokasi || 'Online'}
+                      </p>
+                      
+                      <div className="mt-auto">
+                        {act.tipe === 'donasi' ? (
+                          <div className="mb-3">
+                             <div className="d-flex justify-content-between small mb-1">
+                               <span>Terkumpul: <b>{formatCurrency(act.donasi_terkumpul)}</b></span>
+                               <span className="text-muted">Target: {formatCurrency(act.target_donasi)}</span>
+                             </div>
+                             <div className="progress" style={{ height: '6px' }}>
+                                <div className="progress-bar bg-warning" style={{ width: `${getPercentage(act.donasi_terkumpul, act.target_donasi)}%` }}></div>
+                             </div>
+                          </div>
+                        ) : (
+                          <div className="mb-3">
+                             <div className="d-flex justify-content-between small mb-1">
+                               <span>Relawan: <b>{act.peserta_terdaftar}</b></span>
+                               <span className="text-muted">Kuota: {act.target_peserta}</span>
+                             </div>
+                             <div className="progress" style={{ height: '6px' }}>
+                                <div className="progress-bar bg-info" style={{ width: `${getPercentage(act.peserta_terdaftar, act.target_peserta)}%` }}></div>
+                             </div>
+                          </div>
+                        )}
+                        
+                        <Link to={`/kegiatan/${act.id}`} className="btn btn-primary w-100 fw-bold">
+                          {act.tipe === 'donasi' ? 'Donasi Sekarang' : 'Daftar Sekarang'}
+                        </Link>
+                      </div>
+                    </div>
                   </div>
-                  <Link to="#" className="btn btn-primary w-100">Daftar Sekarang</Link>
                 </div>
-              </div>
-            </div>
+              ))
+            )}
+          </div>
+          
+          <div className="text-center mt-4">
+             <Link to="/kegiatan-publik" className="btn btn-outline-primary">Lihat Lebih Banyak</Link>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-dark text-white py-4">
-        <div className="container">
-          <div className="row">
-            <div className="col-md-4">
-              <h5 className="fw-bold">SIMASOSIAL FST</h5>
-              <p className="text-white-50">Platform kegiatan sosial mahasiswa Fakultas Sains dan Teknologi.</p>
+      {/* ========================================
+        FOOTER
+        ========================================
+      */}
+      <footer className="py-5 mt-auto" style={{ backgroundColor: '#010962ff', color: '#ffffffff' }}>
+        <div className="container text-center">
+          <div className="row mb-4">
+            
+            {/* Kolom 1 */}
+            <div className="col-md-4 mb-3">
+              <h5 className="fw-bold text-uppercase mb-3">Tentang Kami</h5>
+              <p className="small">
+                Platform digital yang menghubungkan mahasiswa Fakultas Sains dan Teknologi dalam kegiatan sosial yang berdampak.
+              </p>
             </div>
-            <div className="col-md-4">
-              <h5 className="fw-bold">Kontak</h5>
-              <ul className="list-unstyled text-white-50">
-                <li>Email: simasosialfst@gmail.com</li>
-                <li>Telp: (0751) 123456</li>
+            
+            {/* Kolom 2 */}
+            <div className="col-md-4 mb-3">
+              <h5 className="fw-bold text-uppercase mb-3">Kontak</h5>
+              <ul className="list-unstyled small">
+                <li className="mb-2"><i className="bi bi-envelope me-2"></i> simasosialfst@gmail.com</li>
+                <li className="mb-2"><i className="bi bi-telephone me-2"></i> (0751) 123456</li>
+                <li><i className="bi bi-geo-alt me-2"></i> UIN Imam Bonjol Padang</li>
               </ul>
             </div>
-            <div className="col-md-4">
-              <h5 className="fw-bold">Ikuti Kami</h5>
-              <a href="#" className="text-white me-2">Instagram</a>
-              <a href="#" className="text-white me-2">Twitter</a>
-              <a href="#" className="text-white">YouTube</a>
+            
+            {/* Kolom 3 */}
+            <div className="col-md-4 mb-3">
+              <h5 className="fw-bold text-uppercase mb-3">Sosial Media</h5>
+              <div className="d-flex justify-content-center gap-3">
+                <a href="#" className="fs-4" style={{ color: '#ffffffff' }}><i className="bi bi-instagram"></i></a>
+                <a href="#" className="fs-4" style={{ color: '#ffffffff' }}><i className="bi bi-twitter"></i></a>
+                <a href="#" className="fs-4" style={{ color: '#ffffffff' }}><i className="bi bi-youtube"></i></a>
+              </div>
             </div>
+
           </div>
-          <hr className="bg-secondary" />
-          <p className="text-center text-white-50 small mb-0">
-            © 2025 SIMASOSIAL FST. All rights reserved.
-          </p>
+          
+          <div className="pt-3" style={{ borderTop: '1px solid #bbdefb' }}>
+            <p className="small mb-0">© 2025 SIMASOSIAL FST. All rights reserved.</p>
+          </div>
         </div>
       </footer>
+
     </div>
   );
 }

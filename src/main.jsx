@@ -4,7 +4,9 @@ import ReactDOM from 'react-dom/client';
 // Impor CSS
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './index.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Impor Router
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -22,8 +24,13 @@ import BuatKegiatan from './pages/BuatKegiatan.jsx';
 import EditKegiatan from './pages/EditKegiatan.jsx';
 import ManajemenPengguna from './pages/ManajemenPengguna.jsx';
 import Pengaturan from './pages/Pengaturan.jsx';
-
-
+import SertifikatSaya from './pages/SertifikatSaya.jsx'; 
+import LihatSertifikat from './pages/LihatSertifikat.jsx'; 
+import ProfilSaya from './pages/ProfilSaya.jsx';
+import LupaPassword from './pages/LupaPassword.jsx';
+import ResetPassword from './pages/ResetPassword.jsx';
+import VerifikasiEmail from './pages/VerifikasiEmail.jsx';
+import KatalogKegiatan from './pages/KatalogKegiatan.jsx';
 
 // Impor Komponen (Guards)
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -37,6 +44,7 @@ const router = createBrowserRouter([
     path: "/",
     element: <LandingPage />, 
   },
+  { path: "/kegiatan-publik", element: <KatalogKegiatan /> },
   {
     path: "/login", 
     element: <Login />,
@@ -49,26 +57,24 @@ const router = createBrowserRouter([
     path: "/verifikasi", 
     element: <VerifikasiSertifikat />,
   },
+  { path: "/verify-email", element: <VerifikasiEmail /> },
+  { path: "/lupa-password", element: <LupaPassword /> },
+  { path: "/reset-password/:token", element: <ResetPassword /> },
   
   // Rute untuk MAHASISWA (Perlu login)
   {
     element: <ProtectedRoute />,
     children: [
-      { 
-        path: "/dashboard", 
-        element: <Dashboard />,
-      },
-      { 
-        path: "/kegiatan/:id", 
-        element: <ActivityDetail />,
-      }
-      // Tambahkan rute mahasiswa lain di sini
+      { path: "/dashboard", element: <Dashboard /> },
+      { path: "/kegiatan/:id", element: <ActivityDetail /> },
+      { path: "/sertifikat-saya", element: <SertifikatSaya /> },
+      { path: "/sertifikat/view/:kodeUnik", element: <LihatSertifikat /> },
+      { path: "/profil", element: <ProfilSaya /> },
     ]
   },
   
   // Rute untuk ADMIN (Perlu login & role 'admin')
   {
-    // Rute untuk ADMIN
     element: <AdminProtectedRoute />,
     children: [
       {
@@ -94,6 +100,18 @@ const router = createBrowserRouter([
           },
         ]
       }
+    ]
+  },
+
+  {
+    element: <ProtectedRoute />,
+    children: [
+      { path: "/dashboard", element: <Dashboard /> },
+      { path: "/kegiatan/:id", element: <ActivityDetail /> },
+      
+      // Rute Baru
+      { path: "/sertifikat-saya", element: <SertifikatSaya /> },
+      { path: "/sertifikat/view/:kodeUnik", element: <LihatSertifikat /> }
     ]
   },
 ]);

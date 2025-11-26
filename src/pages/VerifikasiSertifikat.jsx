@@ -44,7 +44,7 @@ function VerifikasiSertifikat() {
 
   return (
     <div>
-      {/* Navbar Sederhana (mirip LandingPage) */}
+      {/* Navbar Sederhana */}
       <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div className="container">
           <Link className="navbar-brand fw-bold" to="/">
@@ -111,6 +111,49 @@ function VerifikasiSertifikat() {
 
         </div>
       </main>
+      {/* ========================================
+        FOOTER
+        ========================================
+      */}
+      <footer className="py-5 mt-auto" style={{ backgroundColor: '#010962ff', color: '#ffffffff' }}>
+        <div className="container text-center">
+          <div className="row mb-4">
+            
+            {/* Kolom 1 */}
+            <div className="col-md-4 mb-3">
+              <h5 className="fw-bold text-uppercase mb-3">Tentang Kami</h5>
+              <p className="small">
+                Platform digital yang menghubungkan mahasiswa Fakultas Sains dan Teknologi dalam kegiatan sosial yang berdampak.
+              </p>
+            </div>
+            
+            {/* Kolom 2 */}
+            <div className="col-md-4 mb-3">
+              <h5 className="fw-bold text-uppercase mb-3">Kontak</h5>
+              <ul className="list-unstyled small">
+                <li className="mb-2"><i className="bi bi-envelope me-2"></i> simasosialfst@gmail.com</li>
+                <li className="mb-2"><i className="bi bi-telephone me-2"></i> (0751) 123456</li>
+                <li><i className="bi bi-geo-alt me-2"></i> UIN Imam Bonjol Padang</li>
+              </ul>
+            </div>
+            
+            {/* Kolom 3 */}
+            <div className="col-md-4 mb-3">
+              <h5 className="fw-bold text-uppercase mb-3">Sosial Media</h5>
+              <div className="d-flex justify-content-center gap-3">
+                <a href="#" className="fs-4" style={{ color: '#ffffffff' }}><i className="bi bi-instagram"></i></a>
+                <a href="#" className="fs-4" style={{ color: '#ffffffff' }}><i className="bi bi-twitter"></i></a>
+                <a href="#" className="fs-4" style={{ color: '#ffffffff' }}><i className="bi bi-youtube"></i></a>
+              </div>
+            </div>
+
+          </div>
+          
+          <div className="pt-3" style={{ borderTop: '1px solid #bbdefb' }}>
+            <p className="small mb-0">© 2025 SIMASOSIAL FST. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
