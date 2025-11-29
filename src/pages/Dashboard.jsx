@@ -30,10 +30,10 @@ function Dashboard() {
 
       try {
         // Ambil data statistik
-        const fetchDashboardStats = fetch('http://localhost:8000/api/dashboard-data', { headers });
+        const fetchDashboardStats = fetch('https://simasosial-backend.onrender.com/api/dashboard-data', { headers });
         
         // Ambil daftar kegiatan terdaftar
-        const fetchMyActivities = fetch('http://localhost:8000/api/my-activities', { headers });
+        const fetchMyActivities = fetch('https://simasosial-backend.onrender.com/api/my-activities', { headers });
 
         // Jalankan keduanya bersamaan
         const [statsRes, activitiesRes] = await Promise.all([fetchDashboardStats, fetchMyActivities]);

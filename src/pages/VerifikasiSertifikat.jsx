@@ -27,7 +27,7 @@ function VerifikasiSertifikat() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/verify-certificate/${kode}`);
+      const response = await fetch(`https://simasosial-backend.onrender.com/api/verify-certificate/${kode}`);
       const data = await response.json();
 
       if (!response.ok) {

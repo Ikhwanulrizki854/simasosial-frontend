@@ -19,7 +19,7 @@ function Pengaturan() {
     const fetchProfile = async () => {
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch('http://localhost:8000/api/admin/profile', {
+        const res = await fetch('https://simasosial-backend.onrender.com/api/admin/profile', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) throw new Error('Gagal memuat profil');
@@ -40,7 +40,7 @@ function Pengaturan() {
     setLoading(true);
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch('http://localhost:8000/api/admin/profile', {
+      const res = await fetch('https://simasosial-backend.onrender.com/api/admin/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ function Pengaturan() {
     setLoading(true);
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch('http://localhost:8000/api/admin/email/test', {
+      const res = await fetch('https://simasosial-backend.onrender.com/api/admin/email/test', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });

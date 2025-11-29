@@ -25,7 +25,7 @@ function AdminDashboard() {
       if (!token) { navigate('/login'); return; }
 
       try {
-        const response = await fetch('http://localhost:8000/api/admin/dashboard-stats', {
+        const response = await fetch('https://simasosial-backend.onrender.com/api/admin/dashboard-stats', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 

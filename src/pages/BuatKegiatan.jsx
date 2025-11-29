@@ -63,7 +63,7 @@ function BuatKegiatan() {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/admin/activities', {
+      const response = await fetch('https://simasosial-backend.onrender.com/api/admin/activities', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData

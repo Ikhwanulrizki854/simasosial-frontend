@@ -24,7 +24,7 @@ function ManajemenPengguna() {
     const token = localStorage.getItem('token');
     if (!token) { navigate('/login'); return; }
     try {
-      const response = await fetch('http://localhost:8000/api/admin/users', {
+      const response = await fetch('https://simasosial-backend.onrender.com/api/admin/users', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) throw new Error('Gagal mengambil data pengguna');
@@ -48,7 +48,7 @@ function ManajemenPengguna() {
     setExporting(true);
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('http://localhost:8000/api/admin/users/export-excel', {
+      const response = await fetch('https://simasosial-backend.onrender.com/api/admin/users/export-excel', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -116,7 +116,7 @@ function ManajemenPengguna() {
 
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`http://localhost:8000/api/admin/users/${user.id}/role`, {
+      const response = await fetch(`https://simasosial-backend.onrender.com/api/admin/users/${user.id}/role`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

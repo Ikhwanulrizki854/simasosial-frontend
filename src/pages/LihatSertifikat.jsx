@@ -7,7 +7,7 @@ function LihatSertifikat() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/verify-certificate/${kodeUnik}`)
+    fetch(`https://simasosial-backend.onrender.com/api/verify-certificate/${kodeUnik}`)
       .then(res => res.json())
       .then(resData => setData(resData))
       .catch(err => console.error(err));

@@ -17,7 +17,7 @@ function ActivityDetail() {
   useEffect(() => {
     const fetchActivity = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/api/activities/${id}`);
+        const response = await fetch(`https://simasosial-backend.onrender.com/api/activities/${id}`);
         if (!response.ok) {
           const data = await response.json();
           throw new Error(data.message || 'Kegiatan tidak ditemukan');
@@ -55,7 +55,7 @@ function ActivityDetail() {
 
     try {
       // Panggil API backend
-      const response = await fetch('http://localhost:8000/api/create-transaction', {
+      const response = await fetch('https://simasosial-backend.onrender.com', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ function ActivityDetail() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/activities/${id}/register`, {
+      const response = await fetch(`https://simasosial-backend.onrender.com/api/activities/${id}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -175,7 +175,7 @@ function ActivityDetail() {
         <div className="row mb-4">
           <div className="col-12">
             <img 
-              src={activity.gambar_url ? `http://localhost:8000/${activity.gambar_url}` : 'https://via.placeholder.com/1200x400?text=Gambar+Kegiatan'} 
+              src={activity.gambar_url ? `https://simasosial-backend.onrender.com/${activity.gambar_url}` : 'https://via.placeholder.com/1200x400?text=Gambar+Kegiatan'} 
               className="img-fluid rounded" 
               alt={activity.judul} 
               style={{ width: '100%', height: '400px', objectFit: 'cover' }} 

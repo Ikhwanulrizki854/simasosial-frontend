@@ -42,7 +42,7 @@ function ManajemenKegiatan() {
       if (!token) { navigate('/login'); return; }
 
       try {
-        const response = await fetch('http://localhost:8000/api/admin/activities', {
+        const response = await fetch('https://simasosial-backend.onrender.com/api/admin/activities', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -108,7 +108,7 @@ function ManajemenKegiatan() {
 
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`http://localhost:8000/api/admin/activities/${id}`, {
+      const response = await fetch(`https://simasosial-backend.onrender.com/api/admin/activities/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -129,7 +129,7 @@ function ManajemenKegiatan() {
     const token = localStorage.getItem('token');
     try {
       // Panggil endpoint Export Excel
-      const response = await fetch('http://localhost:8000/api/admin/activities/export-excel', {
+      const response = await fetch('https://simasosial-backend.onrender.com/api/admin/activities/export-excel', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       

@@ -15,7 +15,7 @@ function VerifikasiEmail() {
     }
 
     // Panggil API Verifikasi
-    fetch('http://localhost:8000/api/verify-email', {
+    fetch('https://simasosial-backend.onrender.com/api/verify-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token })

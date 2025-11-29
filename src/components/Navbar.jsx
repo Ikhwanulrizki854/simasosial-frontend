@@ -41,7 +41,7 @@ function Navbar() {
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/my-notifications', {
+      const res = await fetch('https://simasosial-backend.onrender.com/api/my-notifications', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Gagal ambil notif');
@@ -57,7 +57,7 @@ function Navbar() {
   const handleNotifClick = async () => {
     if (unreadCount > 0) {
       try {
-        await fetch('http://localhost:8000/api/notifications/mark-read', {
+        await fetch('https://simasosial-backend.onrender.com/api/notifications/mark-read', {
           method: 'PUT',
           headers: { 'Authorization': `Bearer ${token}` }
         });

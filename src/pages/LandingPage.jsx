@@ -28,7 +28,7 @@ function LandingPage() {
     const fetchActivities = async () => {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:8000/api/public-activities');
+        const response = await fetch('https://simasosial-backend.onrender.com/api/public-activities');
         if (!response.ok) throw new Error('Gagal memuat kegiatan');
         const data = await response.json();
         setActivities(data);
@@ -93,7 +93,7 @@ function LandingPage() {
                   <div className="card shadow-sm border-0 h-100 hover-card">
                     <div className="position-relative">
                       <img 
-                        src={act.gambar_url ? `http://localhost:8000/${act.gambar_url}` : 'https://via.placeholder.com/400x200?text=Kegiatan'} 
+                        src={act.gambar_url ? `https://simasosial-backend.onrender.com/${act.gambar_url}` : 'https://via.placeholder.com/400x200?text=Kegiatan'} 
                         className="card-img-top" 
                         alt={act.judul} 
                         style={{ height: '200px', objectFit: 'cover' }}

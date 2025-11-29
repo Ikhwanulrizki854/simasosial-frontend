@@ -16,7 +16,7 @@ function ProfilSaya() {
     const fetchProfile = async () => {
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch('http://localhost:8000/api/profile', {
+        const res = await fetch('https://simasosial-backend.onrender.com/api/profile', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) throw new Error('Gagal memuat profil');
@@ -41,7 +41,7 @@ function ProfilSaya() {
     const token = localStorage.getItem('token');
     
     try {
-      const res = await fetch('http://localhost:8000/api/profile', {
+      const res = await fetch('https://simasosial-backend.onrender.com/api/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

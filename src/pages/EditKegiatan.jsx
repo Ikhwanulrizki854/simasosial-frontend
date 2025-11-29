@@ -31,7 +31,7 @@ function EditKegiatan() {
   // Fetch Detail Kegiatan
   const fetchActivityDetails = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/activities/${activityId}`);
+      const response = await fetch(`https://simasosial-backend.onrender.com/api/activities/${activityId}`);
       if (!response.ok) throw new Error('Gagal mengambil data kegiatan.');
       const data = await response.json();
       
@@ -55,7 +55,7 @@ function EditKegiatan() {
     setError('');
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`http://localhost:8000/api/admin/activities/${activityId}/participants`, {
+      const res = await fetch(`https://simasosial-backend.onrender.com/api/admin/activities/${activityId}/participants`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Gagal memuat peserta');
@@ -91,7 +91,7 @@ function EditKegiatan() {
     if (gambar) formData.append('gambar', gambar);
 
     try {
-      const response = await fetch(`http://localhost:8000/api/admin/activities/${activityId}`, {
+      const response = await fetch(`https://simasosial-backend.onrender.com/api/admin/activities/${activityId}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -110,7 +110,7 @@ function EditKegiatan() {
   const handleStatusChange = async (registration_id, newStatus) => {
     const token = localStorage.getItem('token');
     try {
-      await fetch(`http://localhost:8000/api/admin/participants/${registration_id}/status`, {
+      await fetch(`https://simasosial-backend.onrender.com/api/admin/participants/${registration_id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ newStatus })
@@ -126,7 +126,7 @@ function EditKegiatan() {
     setLoading(true);
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`http://localhost:8000/api/admin/activities/${activityId}/generate-certificates`, {
+      const res = await fetch(`https://simasosial-backend.onrender.com/api/admin/activities/${activityId}/generate-certificates`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -146,7 +146,7 @@ function EditKegiatan() {
     const token = localStorage.getItem('token');
     try {
       // Memanggil endpoint Excel yang baru dibuat di server.js
-      const response = await fetch(`http://localhost:8000/api/admin/activities/${activityId}/export-participants-excel`, {
+      const response = await fetch(`https://simasosial-backend.onrender.com/api/admin/activities/${activityId}/export-participants-excel`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
